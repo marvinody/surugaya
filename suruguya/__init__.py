@@ -1,0 +1,1 @@
+from .suruguya import search
