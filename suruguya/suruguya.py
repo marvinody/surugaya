@@ -10,6 +10,7 @@ rootURL = "https://www.suruga-ya.jp/search?category=&=gift+closet"
 availabilityMap = {
     '新品': 'Brand New',
     '中古': 'Second Hand',
+    '定価': 'List Price',
 }
 
 
@@ -23,25 +24,30 @@ class Item:
         self.availability = kwargs['availability']
 
 
-def createItem(productHTML):
-    productURL = productHTML.find('a')['href']
+def createItem(url, name, imageUrl, priceLine):
     # this will pull a bunch of junk with it like yen sign and weird chars
-    priceText = productHTML.find('p', class_='price').text
+    priceText = priceLine.text
     # so we just remove anything that's not a digit
-    priceDigits = re.sub('[^0123456789]', '', priceText)
+    priceDigits = re.sub('[^0-9]', '', priceText)
     # and just parse into int
     price = int(priceDigits)
-    availabilityJP = productHTML.find(
-        'p', class_='condition').find('span').text
-    item = Item(
-        productURL=productURL,
-        imageURL=productHTML.find('img')['src'],
-        productName=productHTML.find('p', class_='title').text,
+
+    availabilityJP = re.search('(.*):', priceText).group(1)
+    return Item(
+        productURL=url,
+        imageURL=imageUrl,
+        productName=name,
         price=price,
-        productCode=productURL[productURL.rindex("/")+1:],
+        productCode=url[url.rindex("/")+1:],
         availability=availabilityMap[availabilityJP],
     )
-    return item
+
+
+def createItems(productHTML):
+    productURL = productHTML.find('a')['href']
+    productName = productHTML.find('p', class_='title').text
+    productImage = productHTML.find('img')['src']
+    return [createItem(productURL, productName, productImage, priceLine) for priceLine in productHTML.find_all('p', class_='price_teika')]
 
 
 def parse(url, data):
@@ -60,6 +66,6 @@ def search(keywords):
 
     items = parse(rootURL, data)
     while items:
-        yield from [createItem(item) for item in items]
+        yield from [createdItem for item in items for createdItem in createItems(item)]
         data['page'] += 1
         items = parse(rootURL, data)
