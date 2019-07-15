@@ -1,9 +1,9 @@
-import requests
 import re
-
-from bs4 import BeautifulSoup
-from math import ceil
 from enum import Enum
+from math import ceil
+
+import requests
+from bs4 import BeautifulSoup
 
 rootURL = "https://www.suruga-ya.jp/search?category=&=gift+closet"
 
@@ -31,7 +31,8 @@ def createItem(productHTML):
     priceDigits = re.sub('[^0123456789]', '', priceText)
     # and just parse into int
     price = int(priceDigits)
-    availabilityJP = productHTML.find('p', class_='condition').find('span').text
+    availabilityJP = productHTML.find(
+        'p', class_='condition').find('span').text
     item = Item(
         productURL=productURL,
         imageURL=productHTML.find('img')['src'],
@@ -42,12 +43,14 @@ def createItem(productHTML):
     )
     return item
 
+
 def parse(url, data):
     # returns [] if page has no items on it
     # returns [Item's] otherwise
     r = requests.get(url, data)
     html = BeautifulSoup(r.text, "html.parser")
     return html.find_all("div", class_="item")
+
 
 def search(keywords):
     data = {
