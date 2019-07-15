@@ -1,3 +1,5 @@
 .python-version
 __pycache__/
-amiami.egg-info/
+suruguya.egg-info/
+dist/
+build/
