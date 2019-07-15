@@ -7,6 +7,6 @@ Simple usage can be something like
 ```python
 import suruguya
 
-for item in suruguya.search("fumofumo plush"):
-  print("{}, {}".format(item.productName, item.productURL))
+for item in suruguya.search("東方 ふもふも"):
+    print("{}, {}".format(item.productName, item.productURL))
 ```
