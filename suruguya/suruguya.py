@@ -11,6 +11,7 @@ availabilityMap = {
     '新品': 'Brand New',
     '中古': 'Second Hand',
     '定価': 'List Price',
+    '予約': 'Preorder',
 }
 
 
@@ -24,7 +25,7 @@ class Item:
         self.availability = kwargs['availability']
 
 
-def createItem(url, name, imageUrl, priceLine):
+def createItem(url, name, priceLine):
     # this will pull a bunch of junk with it like yen sign and weird chars
     priceText = priceLine.text
     # so we just remove anything that's not a digit
@@ -32,22 +33,23 @@ def createItem(url, name, imageUrl, priceLine):
     # and just parse into int
     price = int(priceDigits)
 
-    availabilityJP = re.search('(.*):', priceText).group(1)
+    availabilityJP = re.search('(.*)：', priceText).group(1).strip()
+    productCode=url[url.rindex("/")+1:]
     return Item(
         productURL=url,
-        imageURL=imageUrl,
+        imageURL=getImageUrl(productCode),
         productName=name,
         price=price,
-        productCode=url[url.rindex("/")+1:],
+        productCode=productCode,
         availability=availabilityMap[availabilityJP],
     )
-
+def getImageUrl(productCode):
+    return 'https://www.suruga-ya.jp/pics/boxart_m/{}m.jpg'.format(productCode)
 
 def createItems(productHTML):
     productURL = productHTML.find('a')['href']
     productName = productHTML.find('p', class_='title').text
-    productImage = productHTML.find('img')['src']
-    return [createItem(productURL, productName, productImage, priceLine) for priceLine in productHTML.find_all('p', class_='price_teika')]
+    return [createItem(productURL, productName, priceLine) for priceLine in productHTML.find_all('p', class_='price_teika')]
 
 
 def parse(url, data):
