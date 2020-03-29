@@ -5,14 +5,7 @@ from math import ceil
 import requests
 from bs4 import BeautifulSoup
 
-rootURL = "https://www.suruga-ya.jp/search?category=&=gift+closet"
-
-availabilityMap = {
-    '新品': 'Brand New',
-    '中古': 'Second Hand',
-    '定価': 'List Price',
-    '予約': 'Preorder',
-}
+rootURL = "https://www.suruga-ya.jp/search?"
 
 
 class Item:
@@ -22,7 +15,6 @@ class Item:
         self.productName = kwargs['productName']
         self.price = kwargs['price']
         self.productCode = kwargs['productCode']
-        self.availability = kwargs['availability']
 
 
 def createItem(url, name, priceLine):
@@ -33,7 +25,6 @@ def createItem(url, name, priceLine):
     # and just parse into int
     price = int(priceDigits)
 
-    availabilityJP = re.search('(.*)：', priceText).group(1).strip()
     productCode=url[url.rindex("/")+1:]
     return Item(
         productURL=url,
@@ -41,7 +32,6 @@ def createItem(url, name, priceLine):
         productName=name,
         price=price,
         productCode=productCode,
-        availability=availabilityMap[availabilityJP],
     )
 def getImageUrl(productCode):
     return 'https://www.suruga-ya.jp/pics/boxart_m/{}m.jpg'.format(productCode)
