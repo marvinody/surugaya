@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='suruguya',
-    version='0.0.4',
+    version='0.0.5',
     author='marvinody',
     author_email='manny@sadpanda.moe',
     description='suruguya api-like wrapper',
